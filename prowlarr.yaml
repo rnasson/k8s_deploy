@@ -14,8 +14,8 @@ spec:
       labels:
         app: prowlarr
     spec:
-      imagePullSecrets:
-        - name: regcred
+      # imagePullSecrets:
+      #   - name: regcred
       containers:
         - name: prowlarr
           image: "docker.io/linuxserver/prowlarr:latest"

@@ -16,8 +16,8 @@ spec:
     spec:
 #      securityContext:
 #        fsGroup: 1000
-      imagePullSecrets:
-        - name: regcred
+      # imagePullSecrets:
+      #   - name: regcred
       containers:
         - name: sonarr
           image: "ghcr.io/hotio/sonarr:latest"
@@ -48,9 +48,9 @@ spec:
             path: /opt/docker/media_stack/qbittorrent/downloads
             type: DirectoryOrCreate
         - name: sonarr-videos
-          hostPath:
+          nfs:
+            server: 10.20.30.41
             path: /mnt/home_nas/Videos
-            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service

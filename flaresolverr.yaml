@@ -14,8 +14,8 @@ spec:
       labels:
         app: flaresolverr
     spec:
-      imagePullSecrets:
-        - name: regcred
+      # imagePullSecrets:
+      #   - name: regcred
       containers:
         - name: flaresolverr
           image: "ghcr.io/flaresolverr/flaresolverr:latest"
