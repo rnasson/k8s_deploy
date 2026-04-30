@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex-deployment
+  labels:
+    app: plex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plex
+  template:
+    metadata:
+      labels:
+        app: plex
+    spec:
+#      securityContext:
+#        fsGroup: 1000
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: plex
+          image: "linuxserver/plex"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 32400  # Default plex port
+          env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: TZ
+              value: "Africa/Johannesburg"    # Set your timezone
+          volumeMounts:
+            - name: plex-dir
+              mountPath: /config
+            - name: plex-transcode
+              mountPath: /transcode
+            - name: plex-videos
+              mountPath: /mnt/home_nas/Videos
+      volumes:
+        - name: plex-dir
+          hostPath:
+            path: /opt/docker/media_stack/plex/config
+            type: DirectoryOrCreate
+        - name: plex-transcode
+          hostPath:
+            path: /opt/docker/media_stack/plex/transcode
+            type: DirectoryOrCreate
+        - name: plex-videos
+          hostPath:
+            path: /mnt/home_nas/Videos
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plex-service
+spec:
+  type: NodePort
+  selector:
+    app: plex
+  ports:
+    - port: 32400
+      targetPort: 32400
+      nodePort: 32400  # Exposed port on the node

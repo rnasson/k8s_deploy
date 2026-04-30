@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr-deployment
+  labels:
+    app: sonarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+#      securityContext:
+#        fsGroup: 1000
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: sonarr
+          image: "linuxserver/sonarr:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8989  # Default Sonarr port
+          env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: TZ
+              value: "Africa/Johannesburg"    # Set your timezone
+          volumeMounts:
+            - name: sonarr-dir
+              mountPath: /config
+            - name: transmission-downloads
+              mountPath: /downloads
+            - name: sonarr-videos
+              mountPath: /mnt/home_nas/Videos
+      volumes:
+        - name: sonarr-dir
+          hostPath:
+            path: /opt/docker/media_stack/sonarr/config
+            type: DirectoryOrCreate
+        - name: transmission-downloads
+          hostPath:
+            path: /opt/docker/media_stack/transmission/downloads
+            type: DirectoryOrCreate
+        - name: sonarr-videos
+          hostPath:
+            path: /mnt/home_nas/Videos
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr-service
+spec:
+  type: NodePort
+  selector:
+    app: sonarr
+  ports:
+    - port: 8989
+      targetPort: 8989
+      nodePort: 30089  # Exposed port on the node

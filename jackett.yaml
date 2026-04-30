@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jackett-deployment
+  labels:
+    app: jackett
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jackett
+  template:
+    metadata:
+      labels:
+        app: jackett
+    spec:
+#      securityContext:
+#        fsGroup: 1000
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: jackett
+          image: "linuxserver/jackett:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9117  # Default jackett port
+          env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: TZ
+              value: "Africa/Johannesburg"    # Set your timezone
+          volumeMounts:
+            - name: jackett-dir
+              mountPath: /config
+      volumes:
+        - name: jackett-dir
+          hostPath:
+            path: /opt/docker/media_stack/jackett
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jackett-service
+spec:
+  type: NodePort
+  selector:
+    app: jackett
+  ports:
+    - port: 9117
+      targetPort: 9117
+      nodePort: 30117  # Exposed port on the node

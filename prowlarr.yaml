@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prowlarr-deployment
+  labels:
+    app: prowlarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prowlarr
+  template:
+    metadata:
+      labels:
+        app: prowlarr
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: prowlarr
+          image: "docker.io/linuxserver/prowlarr:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9696  # Default prowlarr port
+          env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: TZ
+              value: "Africa/Johannesburg"    # Set your timezone
+          volumeMounts:
+            - name: prowlarr-dir
+              mountPath: /config
+      volumes:
+        - name: prowlarr-dir
+          hostPath:
+            path: /opt/docker/media_stack/prowlarr
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prowlarr-service
+spec:
+  type: NodePort
+  selector:
+    app: prowlarr
+  ports:
+    - port: 9696
+      targetPort: 9696
+      nodePort: 30696  # Exposed port on the node

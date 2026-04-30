@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "24"
+  creationTimestamp: "2025-02-08T22:04:32Z"
+  generation: 24
+  labels:
+    app: transmission
+  name: transmission-deployment
+  namespace: default
+  resourceVersion: "35607508"
+  uid: b000e9b7-f571-4d95-a4ee-e0bbcf3bed83
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: transmission
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-01T12:32:15Z"
+      creationTimestamp: null
+      labels:
+        app: transmission
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+      - env:
+        - name: PGID
+          value: "1000"
+        - name: PUID
+          value: "1000"
+        - name: TZ
+          value: Africa/Johannesburg
+        image: "linuxserver/transmission:latest"
+        imagePullPolicy: IfNotPresent
+        name: transmission
+        ports:
+        - containerPort: 9091
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /config
+          name: transmission-dir
+        - mountPath: /downloads
+          name: transmission-downloads
+        - mountPath: /mnt/home_nas/Videos
+          name: transmission-videos
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /opt/docker/media_stack/transmission/config
+          type: DirectoryOrCreate
+        name: transmission-dir
+      - hostPath:
+          path: /opt/docker/media_stack/transmission/downloads
+          type: DirectoryOrCreate
+        name: transmission-downloads
+      - hostPath:
+          path: /mnt/home_nas/Videos
+          type: DirectoryOrCreate
+        name: transmission-videos
+status:
+  conditions:
+  - lastTransitionTime: "2025-12-27T22:41:39Z"
+    lastUpdateTime: "2025-12-27T22:41:39Z"
+    message: Deployment does not have minimum availability.
+    reason: MinimumReplicasUnavailable
+    status: "False"
+    type: Available
+  - lastTransitionTime: "2026-01-01T12:32:15Z"
+    lastUpdateTime: "2026-01-01T12:32:17Z"
+    message: ReplicaSet "transmission-deployment-78b86f75db" is progressing.
+    reason: ReplicaSetUpdated
+    status: "True"
+    type: Progressing
+  observedGeneration: 24
+  replicas: 2
+  unavailableReplicas: 2
+  updatedReplicas: 1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transmission-service
+spec:
+  type: NodePort
+  selector:
+    app: transmission
+  ports:
+    - port: 9091
+      targetPort: 9091
+      nodePort: 30091  # Exposed port on the node
+
+

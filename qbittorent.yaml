@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent-deployment
+  labels:
+    app: qbittorrent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qbittorrent
+  template:
+    metadata:
+      labels:
+        app: qbittorrent
+    spec:
+#      securityContext:
+#        fsGroup: 1000
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: qbittorrent
+          image: "linuxserver/qbittorrent:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8989  # Default qbittorrent port
+          env:
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: TZ
+              value: "Africa/Johannesburg"    # Set your timezone
+          volumeMounts:
+            - name: qbittorrent-dir
+              mountPath: /config
+            - name: transmission-downloads
+              mountPath: /downloads
+            - name: qbittorrent-videos
+              mountPath: /mnt/home_nas/Videos
+      volumes:
+        - name: qbittorrent-dir
+          hostPath:
+            path: /opt/docker/media_stack/qbittorrent/config
+            type: DirectoryOrCreate
+        - name: transmission-downloads
+          hostPath:
+            path: /opt/docker/media_stack/qbittorrent/downloads
+            type: DirectoryOrCreate
+        - name: qbittorrent-videos
+          hostPath:
+            path: /mnt/home_nas/Videos
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent-service
+spec:
+  type: NodePort
+  selector:
+    app: qbittorrent
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30808  # Exposed port on the node

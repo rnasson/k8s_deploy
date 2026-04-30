@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin-deployment
+  labels:
+    app: jellyfin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+#      securityContext:
+#        fsGroup: 1000
+#      imagePullSecrets:
+#        - name: regcred
+      containers:
+        - name: jellyfin
+#          image: "jellyfin/jellyfin:latest"
+          image: "ghcr.io/hotio/jellyfin:release-10.10.7"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8096  # Default jellyfin port
+          env:
+            - name: JELLYFIN_DATA_DIR
+              value: "/config"  # Tells Jellyfin to put 'data' contents directly in /config
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+            - name: TZ
+              value: "Africa/Johannesburg"    # Set your timezone
+          volumeMounts:
+            - name: jellyfin-dir
+              mountPath: /config
+              subPath: config      # Isolates config marker
+            - name: jellyfin-dir
+              mountPath: /cache
+              subPath: cache       # Isolates cache marker
+            - name: jellyfin-videos
+              mountPath: /mnt/home_nas/Videos
+      volumes:
+        - name: jellyfin-dir
+          hostPath:
+            path: /opt/docker/media_stack/jellyfin/config
+            type: DirectoryOrCreate
+        - name: jellyfin-videos
+          nfs:
+            server: 10.20.30.41
+            path: /mnt/home_nas/Videos
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin-service
+spec:
+  type: NodePort
+  selector:
+    app: jellyfin
+  ports:
+    - port: 8096
+      targetPort: 8096
+      nodePort: 30096  # Exposed port on the node
