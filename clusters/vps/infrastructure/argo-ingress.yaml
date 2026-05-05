@@ -5,11 +5,12 @@ metadata:
   namespace: argocd
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.tls: "true" # Forces TLS mode
 spec:
   tls:
   - hosts:
-    - argo.nasson.co.za
-    secretName: nasson-wildcard-tls # K3s can sometimes resolve this if it's in kube-system
+      - argo.nasson.co.za # This MUST match the host below exactly
+    secretName: nasson-wildcard-tls
   rules:
   - host: argo.nasson.co.za
     http:
