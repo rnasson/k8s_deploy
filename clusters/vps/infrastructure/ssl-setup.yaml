@@ -1,0 +1,31 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: cloudflare-wildcard-issuer
+spec:
+  acme:
+    email: rory@nasson.co.za
+    server: https://letsencrypt.org
+    privateKeySecretRef:
+      name: cloudflare-account-key
+    solvers:
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nasson-wildcard-cert
+  namespace: kube-system
+spec:
+  secretName: nasson-wildcard-tls
+  issuerRef:
+    name: cloudflare-wildcard-issuer
+    kind: ClusterIssuer
+  commonName: "*.nasson.co.za"
+  dnsNames:
+  - "nasson.co.za"
+  - "*.nasson.co.za"
