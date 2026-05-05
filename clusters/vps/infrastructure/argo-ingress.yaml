@@ -6,6 +6,10 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
 spec:
+  tls:
+  - hosts:
+    - argo.nasson.co.za
+    secretName: nasson-wildcard-tls # K3s can sometimes resolve this if it's in kube-system
   rules:
   - host: argo.nasson.co.za
     http:
