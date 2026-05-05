@@ -43,11 +43,11 @@ spec:
           hostPath:
             path: /opt/docker/media_stack/radarr/config
             type: DirectoryOrCreate
-        - name: radarr-videos
-          hostPath:
-            path: /mnt/home_nas/Videos
-            type: DirectoryOrCreate
         - name: qbittorrent-downloads
+          hostPath:
+            path: /opt/docker/media_stack/qbittorrent/downloads
+            type: DirectoryOrCreate
+        - name: radarr-videos
           nfs:
             server: 10.20.30.41
             path: /mnt/home_nas/Videos
