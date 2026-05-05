@@ -5,12 +5,7 @@ metadata:
   namespace: argocd
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
-  tls:
-  - hosts:
-      - argo.nasson.co.za
-    secretName: nasson-wildcard-tls # This is the cert we set up earlier
   rules:
   - host: argo.nasson.co.za
     http:
