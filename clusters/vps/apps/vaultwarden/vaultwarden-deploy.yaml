@@ -27,7 +27,7 @@ spec:
         - name: SIGNUPS_ALLOWED
           value: "false" # Set to true to create your first account
         - name: DOMAIN
-          value: "https://nasson.co.za"
+          value: "https://pwm.nasson.co.za"
         ports:
         - containerPort: 80
         volumeMounts:
@@ -36,7 +36,7 @@ spec:
       volumes:
       - name: vaultwarden-data
         hostPath:
-          path: /opt/docker/vaultwarden/data # Adjust to your actual path
+          path: /opt/docker/vaultwarden/vw-data # Adjust to your actual path
           type: DirectoryOrCreate
 ---
 apiVersion: v1
