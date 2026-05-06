@@ -13,20 +13,21 @@ metadata:
   namespace: kube-system
 spec:
   ports:
-  - name: https-internal
-    port: 443
-    targetPort: 9443
+    - name: https-internal
+      port: 443           # This is the port Traefik looks for
+      targetPort: 9443    # This is the port on the Docker host
 ---
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: mailcow-web-backend
+  name: mailcow-web-backend # MUST match Service name exactly
   namespace: kube-system
 subsets:
   - addresses:
       - ip: 172.17.0.1
     ports:
-      - port: 9443
+      - name: https-internal
+        port: 9443
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -38,10 +39,10 @@ spec:
     - websecure
   routes:
   - kind: Rule
-    match: Host(`mx.nasson.co.za`)
+    match: Host(`mailcow.nasson.co.za`)
     services:
     - name: mailcow-web-backend
-      port: 443
+      port: 443           # MUST match the Service port above
       scheme: https
       serversTransport: mailcow-transport
   tls: {}
