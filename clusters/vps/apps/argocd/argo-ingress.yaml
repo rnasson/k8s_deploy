@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server-https
+  namespace: argocd
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`argo.nasson.co.za`)
+    services:
+    - name: argocd-server
+      port: 80
+  tls: {} # Empty brackets tell Traefik: "Use the default TLS Store"
