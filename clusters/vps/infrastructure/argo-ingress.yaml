@@ -1,25 +1,17 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
 metadata:
-  name: argocd-server-ingress
+  name: argocd-server-tls
   namespace: argocd
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
-  ingressClassName: traefik # <--- Add this line
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`argo.nasson.co.za`)
+      kind: Rule
+      services:
+        - name: argocd-server
+          port: 443
+          scheme: https # ArgoCD internal traffic is HTTPS
   tls:
-  - hosts:
-      - argo.nasson.co.za
     secretName: nasson-wildcard-tls
-  rules:
-  - host: argo.nasson.co.za
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: argocd-server
-            port:
-              name: https
