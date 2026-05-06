@@ -8,11 +8,11 @@ spec:
   source:
     repoURL: 'https://github.com/rnasson/k8s_deploy.git'
     targetRevision: HEAD
-    path: apps
+    path: clusters/vps/apps
     directory:
       recurse: true # This looks into subfolders for more apps
   destination:
-    server: 'https://default.svc'
+    server: 'https://kubernetes.default.svc'
     namespace: argocd
   syncPolicy:
     automated:

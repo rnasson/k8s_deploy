@@ -60,7 +60,7 @@ spec:
   entryPoints: [websecure]
   routes:
   - kind: Rule
-    match: Host(`vault.nasson.co.za`)
+    match: Host(`pwm.nasson.co.za`)
     services:
     - name: vaultwarden-service
       port: 80
