@@ -33,9 +33,11 @@ spec:
           mountPath: /var/lib/postgresql/data
       - name: zabbix-server
         image: zabbix/zabbix-server-pgsql:latest
-      - containerPort: 10051
-        hostPort: 10051
-        protocol: TCP
+        ports:
+        - name: zabbix-trapper    # <--- Add this line
+          containerPort: 10051
+          hostPort: 10051
+          protocol: TCP
         securityContext:
           capabilities:
             add: ["NET_RAW"]
@@ -96,18 +98,3 @@ spec:
     - name: zabbix-web-svc
       port: 80
   tls: {}
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: zabbix-trapper-svc
-#   namespace: zabbix
-# spec:
-#   type: NodePort
-#   selector:
-#     app: zabbix # Ensure this matches your Zabbix Server label
-#   ports:
-#     - name: trapper
-#       port: 10051
-#       targetPort: 10051
-#       nodePort: 10051
