@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: zabbix
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: zabbix-agent2
+  namespace: zabbix
+spec:
+  selector:
+    matchLabels:
+      app: zabbix-agent2
+  template:
+    metadata:
+      labels:
+        app: zabbix-agent2
+    spec:
+      hostNetwork: true # Allows agent to see the home server's real IP and hardware
+      containers:
+      - name: zabbix-agent2
+        image: zabbix/zabbix-agent2:latest
+        ports:
+        - containerPort: 10050
+          hostPort: 10050
+          name: zabbix-agent
+        env:
+        - name: ZBX_HOSTNAME
+          value: "CloudServer-Cluster"
+        - name: ZBX_SERVER_HOST
+          value: "zabbix.nasson.co.za" # Use VPS WG IP if this fails
+        - name: ZBX_PASSIVE_ALLOW
+          value: "0.0.0.0/0"
+        securityContext:
+          privileged: true # Required to monitor HDDs/Sensors on your media server
+
+
+
+
+
+
